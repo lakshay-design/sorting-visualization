@@ -1,270 +1,152 @@
-from tkinter import *
-from tkinter import ttk
-from tkinter import filedialog
-from PIL import ImageTk, Image
-from tkinter import messagebox
-import os
+import matplotlib.pyplot as plt
+import random
+import time
 
-class SteganographyApp:
-    def __init__(self, root):
-        self.root = root
-        self.output_image_size = 0
-        self.d_image_size = 0
-        self.d_image_w = 0
-        self.d_image_h = 0
 
-        self.art = '''¯\_(ツ)_/¯'''
-        self.art2 = '''          _ _ __
-      /  _ _  
-     |    ( )   |
-          \_ _ _ _/
-              | |
-              | |
-              | |
-              \_/
+# Function to visualize the sorting algorithm
+def visualize_sort(sort_func, arr):
+    n = len(arr)
+    fig, ax = plt.subplots()
+    ax.set_title("Sorting Algorithm: {}".format(sort_func.__name__))
 
-                                                                                      @--lakshay'''
+    start_time = time.time()  # get the current time
 
-        self.main()
+    # Plotting the bars for the array elements
+    bars = ax.bar(range(n), arr)
 
-    def main(self):
-        self.root.title('Image Steganographer')
-        self.root.geometry('500x600')
-        self.root.resizable(width=False, height=False)
-        f = Frame(self.root)
+    # Call the sort function once for quick_sort
+    if sort_func == quick_sort:
+        sort_func(arr, 0, n, bars)
+    else:
+        # Loop to animate the sorting process for other algorithms
+        for i in range(n):
+            sort_func(arr, i, n, bars)
+            plt.draw()
+            plt.pause(1.5)
 
-        title = Label(f, text='''  IMAGE 
- ------------
-STEGANOGRAPHY
------------------------------''')
-        title.config(font=('Helvetica', 29, 'bold'))
-        title.grid(pady=10)
+    end_time = time.time()  # get the current time again
+    time_taken = end_time - start_time  # calculate the elapsed time
+    print("Time taken: {:.2f} seconds".format(time_taken))
 
-        b_encode = Button(f, text="Encode", command=lambda: self.frame1_encode(f), padx=14)
-        b_encode.config(font=('Arial', 14, 'bold'), bg='#4CAF50', fg='white')
-        b_decode = Button(f, text="Decode", padx=14, command=lambda: self.frame1_decode(f))
-        b_decode.config(font=('Arial', 14, 'bold'), bg='#FF5733', fg='white')
-        b_decode.grid(pady=12)
+    plt.show()
 
-        ascii_art = Label(f, text=self.art)
-        ascii_art.config(font=('Arial', 60))
-        ascii_art2 = Label(f, text=self.art2)
-        ascii_art2.config(font=('Arial', 12, 'bold'))
 
-        self.root.grid_rowconfigure(1, weight=1)
-        self.root.grid_columnconfigure(0, weight=1)
+# Function to implement Bubble sort
+def bubble_sort(arr, i, n, bars):
+    # Loop to compare adjacent elements and swap if required
+    for j in range(n - i - 1):
+        if arr[j] > arr[j + 1]:
+            # Change color to red while swapping elements
+            bars[j].set_color("red")
+            bars[j + 1].set_color("red")
+            plt.pause(0.5)
+            arr[j], arr[j + 1] = arr[j + 1], arr[j]
+            # Update the height of the bars to reflect the change
+            bars[j].set_height(arr[j])
+            bars[j + 1].set_height(arr[j + 1])
+            # Change color back to blue after swapping elements
+            bars[j].set_color("blue")
+            bars[j + 1].set_color("blue")
 
-        style = ttk.Style()
-        style.theme_use("clam")  # Choose a theme (e.g., "clam", "winnative", "default")
 
-        f.grid()
-        title.grid(row=1)
-        b_encode.grid(row=2)
-        b_decode.grid(row=3)
-        ascii_art.grid(row=4, pady=10)
-        ascii_art2.grid(row=5, pady=5)
+# Function to implement Insertion sort
+def insertion_sort(arr, i, n, bars):
+    key = arr[i]
+    j = i - 1
+    # Loop to shift elements to make space for the key element
+    while j >= 0 and key < arr[j]:
+        # Change color to red while shifting elements
+        bars[j].set_color("red")
+        bars[j + 1].set_color("red")
+        plt.pause(0.5)
+        arr[j + 1] = arr[j]
+        # Update the height of the bars to reflect the change
+        bars[j + 1].set_height(arr[j])
+        j -= 1
+    arr[j + 1] = key
+    # Update the height of the bars to reflect the change
+    bars[j + 1].set_height(key)
+    # Change color back to blue after inserting the key element
+    bars[j + 1].set_color("blue")
 
-    def home(self, frame):
-        frame.destroy()
-        self.main()
 
-    def frame1_decode(self, f):
-        f.destroy()
-        d_f2 = Frame(self.root)
-        label_art = Label(d_f2, text='٩(^‿^)۶')
-        label_art.config(font=('Arial', 90))
-        label_art.grid(row=1, pady=50)
-        l1 = Label(d_f2, text='Select Image with Hidden text:')
-        l1.config(font=('Arial', 18))
-        l1.grid()
-        bws_button = Button(d_f2, text='Select', command=lambda: self.frame2_decode(d_f2))
-        bws_button.config(font=('Arial', 18), bg='#4CAF50', fg='white')
-        bws_button.grid()
-        back_button = Button(d_f2, text='Back', command=lambda: self.home(d_f2))
-        back_button.config(font=('Arial', 18), bg='#FF5733', fg='white')
-        back_button.grid(pady=15)
-        back_button.grid()
-        d_f2.grid()
+# Function to implement Selection sort
+def selection_sort(arr, i, n, bars):
+    min_idx = i
+    # Loop to find the minimum element
+    for j in range(i + 1, n):
+        if arr[j] < arr[min_idx]:
+            min_idx = j
+    # Change color to red while swapping elements        
+    bars[i].set_color("red")
+    bars[min_idx].set_color("red")
+    plt.pause(0.5)
+    arr[i], arr[min_idx] = arr[min_idx], arr[i]
 
-    def frame2_decode(self, d_f2):
-        d_f3 = Frame(self.root)
-        myfile = filedialog.askopenfilename(filetypes=([('png', '*.png'), ('jpeg', '*.jpeg'), ('jpg', '*.jpg'),
-                                                          ('All Files', '*.*')]))
-        if not myfile:
-            messagebox.showerror("Error", "You have selected nothing!")
-        else:
-            try:
-                myimg = Image.open(myfile, 'r')
-                myimage = myimg.resize((300, 200))
-                img = ImageTk.PhotoImage(myimage)
-                l4 = Label(d_f3, text='Selected Image:')
-                l4.config(font=('Arial', 18))
-                l4.grid()
-                panel = Label(d_f3, image=img)
-                panel.image = img
-                panel.grid()
-                hidden_data = self.decode(myimg)
-                l2 = Label(d_f3, text='Hidden data is:')
-                l2.config(font=('Arial', 18))
-                l2.grid(pady=10)
-                text_area = Text(d_f3, width=50, height=10)
-                text_area.insert(INSERT, hidden_data)
-                text_area.configure(state='disabled')
-                text_area.grid()
-                back_button = Button(d_f3, text='Back', command=lambda: self.page3(d_f3))
-                back_button.config(font=('Arial', 11))
-                back_button.grid(pady=15)
-                back_button.grid()
-                show_info = Button(d_f3, text='More Info', command=self.info)
-                show_info.config(font=('Arial', 11))
-                show_info.grid()
-                d_f3.grid(row=1)
-                d_f2.destroy()
-            except Exception as e:
-                messagebox.showerror("Error", f"Could not open the image: {e}")
+    # Update the height of the bars to reflect the change
+    bars[i].set_height(arr[i])
+    bars[min_idx].set_height(arr[min_idx])
+    bars[i].set_color("blue")
+    bars[min_idx].set_color("blue")
 
-    def decode(self, image):
-        data = ''
-        imgdata = iter(image.getdata())
 
-        while True:
-            pixels = [value for value in imgdata.__next__()[:3] +
-                      imgdata.__next__()[:3] +
-                      imgdata.__next__()[:3]]
-            binstr = ''
-            for i in pixels[:8]:
-                binstr += '0' if i % 2 == 0 else '1'
+def partition(arr, low, high, bars):
+    i = low - 1
+    pivot = arr[high]
 
-            data += chr(int(binstr, 2))
-            if pixels[-1] % 2 != 0:
-                return data
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            i += 1
+            bars[i].set_color("red")
+            bars[j].set_color("red")
+            plt.pause(0.5)
+            arr[i], arr[j] = arr[j], arr[i]
+            bars[i].set_height(arr[i])
+            bars[j].set_height(arr[j])
+            bars[i].set_color("blue")
+            bars[j].set_color("blue")
 
-    def frame1_encode(self, f):
-        f.destroy()
-        f2 = Frame(self.root)
-        label_art = Label(f2, text='\'\(°Ω°)/\'')
-        label_art.config(font=('Arial', 70))
-        label_art.grid(row=1, pady=50)
-        l1 = Label(f2, text='Select the Image in which \nyou want to hide text:')
-        l1.config(font=('Arial', 18))
-        l1.grid()
+    bars[i + 1].set_color("red")
+    bars[high].set_color("red")
+    plt.pause(0.5)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    bars[i + 1].set_height(arr[i + 1])
+    bars[high].set_height(arr[high])
+    bars[i + 1].set_color("blue")
+    bars[high].set_color("blue")
 
-        bws_button = Button(f2, text='Select', command=lambda: self.frame2_encode(f2))
-        bws_button.config(font=('Arial', 18), bg='#4CAF50', fg='white')
-        bws_button.grid()
-        back_button = Button(f2, text='Back', command=lambda: self.home(f2))
-        back_button.config(font=('Arial', 18), bg='#FF5733', fg='white')
-        back_button.grid(pady=15)
-        back_button.grid()
-        f2.grid()
+    return i + 1
 
-    def frame2_encode(self, f2):
-        ep = Frame(self.root)
-        myfile = filedialog.askopenfilename(filetypes=([('png', '*.png'), ('jpeg', '*.jpeg'), ('jpg', '*.jpg'),
-                                                        ('All Files', '*.*')]))
-        if not myfile:
-            messagebox.showerror("Error", "You have selected nothing!")
-        else:
-            try:
-                myimg = Image.open(myfile)
-                myimage = myimg.resize((300, 200))
-                img = ImageTk.PhotoImage(myimage)
-                l3 = Label(ep, text='Selected Image')
-                l3.config(font=('courier', 18))
-                l3.grid()
-                panel = Label(ep, image=img)
-                panel.image = img
-                self.output_image_size = os.stat(myfile)
-                self.o_image_w, self.o_image_h = myimg.size
-                panel.grid()
-                l2 = Label(ep, text='Enter the message')
-                l2.config(font=('courier', 18))
-                l2.grid(pady=15)
-                text_area = Text(ep, width=50, height=10)
-                text_area.grid()
-                encode_button = Button(ep, text='Cancel', command=lambda: self.home(ep))
-                encode_button.config(font=('courier', 11))
-                back_button = Button(ep, text='Encode', command=lambda: [self.enc_fun(text_area, myimg), self.home(ep)])
-                back_button.config(font=('courier', 11))
-                back_button.grid(pady=15)
-                encode_button.grid()
-                ep.grid(row=1)
-                f2.destroy()
-            except Exception as e:
-                messagebox.showerror("Error", f"Could not open the image: {e}")
 
-    def info(self):
-        try:
-            str_info = 'Original Image:\nSize: {}mb\nWidth: {}\nHeight: {}\n\n' \
-                       'Decoded Image:\nSize: {}mb\nWidth: {}\nHeight: {}'.format(
-                self.output_image_size.st_size / 1000000,
-                self.o_image_w, self.o_image_h,
-                self.d_image_size / 1000000,
-                self.d_image_w, self.d_image_h)
-            messagebox.showinfo('Information', str_info)
-        except Exception as e:
-            messagebox.showinfo('Information', f'Unable to get the information: {e}')
+def quick_sort_helper(arr, low, high, bars):
+    if low < high:
+        pi = partition(arr, low, high, bars)
 
-    def genData(self, data):
-        newd = [format(ord(i), '08b') for i in data]
-        return newd
+        quick_sort_helper(arr, low, pi - 1, bars)
+        quick_sort_helper(arr, pi + 1, high, bars)
 
-    def modPix(self, pix, data):
-        datalist = self.genData(data)
-        lendata = len(datalist)
-        imdata = iter(pix)
 
-        for i in range(lendata):
-            pixels = [value for value in imdata.__next__()[:3] +
-                      imdata.__next__()[:3] +
-                      imdata.__next__()[:3]]
-            for j in range(8):
-                if datalist[i][j] == '0' and pixels[j] % 2 != 0:
-                    pixels[j] -= 1
-                elif datalist[i][j] == '1' and pixels[j] % 2 == 0:
-                    pixels[j] -= 1
-            if i == lendata - 1:
-                if pixels[-1] % 2 == 0:
-                    pixels[-1] -= 1
-            else:
-                if pixels[-1] % 2 != 0:
-                    pixels[-1] -= 1
-            pixels = tuple(pixels)
-            yield pixels[0:3]
-            yield pixels[3:6]
-            yield pixels[6:9]
+def quick_sort(arr, i, n, bars):
+    if i == 0:  # Ensure that quick_sort_helper is only called once
+        quick_sort_helper(arr, 0, n - 1, bars)
 
-    def encode_enc(self, newimg, data):
-        w = newimg.size[0]
-        (x, y) = (0, 0)
-        for pixel in self.modPix(newimg.getdata(), data):
-            newimg.putpixel((x, y), pixel)
-            if x == w - 1:
-                x = 0
-                y += 1
-            else:
-                x += 1
 
-    def enc_fun(self, text_area, myimg):
-        data = text_area.get("1.0", "end-1c")
-        if len(data) == 0:
-            messagebox.showinfo("Alert", "Kindly enter text in TextBox")
-        else:
-            newimg = myimg.copy()
-            self.encode_enc(newimg, data)
-            temp = os.path.splitext(os.path.basename(myimg.filename))[0]
-            new_filename = filedialog.asksaveasfilename(initialfile=temp, filetypes=[('png', '*.png')],
-                                                        defaultextension=".png")
-            if new_filename:
-                newimg.save(new_filename)
-                self.d_image_size = os.stat(new_filename).st_size
-                self.d_image_w, self.d_image_h = newimg.size
-                messagebox.showinfo("Success", "Encoding Successful\nFile is saved in the selected directory")
+if __name__ == "__main__":
+    sort_functions = {
+        "bubble_sort": bubble_sort,
+        "insertion_sort": insertion_sort,
+        "selection_sort": selection_sort,
+        "quick_sort": quick_sort
+    }
 
-    def page3(self, frame):
-        frame.destroy()
-        self.main()
+    print("Available sorting algorithms:")
+    for i, key in enumerate(sort_functions.keys()):
+        print(f"{i + 1}. {key}")
 
-root = Tk()
-app = SteganographyApp(root)
-root.mainloop()
+    choice = int(input("Enter the number corresponding to the sorting algorithm you want to visualize: "))
+    sort_func = list(sort_functions.values())[choice - 1]
+
+    size = int(input("Enter the size of the array: "))
+    arr = [random.randint(1, 100) for _ in range(size)]
+
+    visualize_sort(sort_func, arr)
